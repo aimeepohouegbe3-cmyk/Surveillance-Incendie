@@ -1,3 +1,4 @@
+
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
@@ -15,6 +16,7 @@ void acquisition_process(struct shared_data *shared,
 {
     unsigned long sequence = 0;
     int scenario = 0;
+    int compteur_scenario = 0;
 
     while (!(*stop))
     {
@@ -61,8 +63,14 @@ void acquisition_process(struct shared_data *shared,
         printf("Flamme : %d\n", m.flame_detected);
         printf("Etat des capteurs : %u\n\n", m.sensor_status);
 
-        /* Scénario suivant */
-        scenario = (scenario + 1) % 3;
+        /* Scénario suivant après trois mesures */
+        compteur_scenario++;
+
+        if (compteur_scenario >= 3)
+        {
+            scenario = (scenario + 1) % 3;
+            compteur_scenario = 0;
+        }
 
         sleep(2);
     }
