@@ -17,6 +17,7 @@
 
 void acquisition_process(struct shared_data *shared,
                          volatile sig_atomic_t *stop);
+
 static volatile sig_atomic_t arret_superviseur = 0;
 static volatile sig_atomic_t arret_p1 = 0;
 
@@ -32,6 +33,31 @@ static void gestion_signal_p1(int sig)
 {
     (void)sig;
     arret_p1 = 1;
+}
+
+/* Arrêt et récupération d'un processus */
+static void arreter_processus(pid_t *pid, const char *nom)
+{
+    if (*pid <= 0)
+        return;
+
+    printf("[Superviseur] Arret de %s...\n", nom);
+
+    if (kill(*pid, SIGTERM) == -1 && errno != ESRCH)
+        perror("[Superviseur] Erreur kill");
+
+    while (waitpid(*pid, NULL, 0) == -1)
+    {
+        if (errno == EINTR)
+            continue;
+
+        if (errno != ECHILD)
+            perror("[Superviseur] Erreur waitpid");
+
+        break;
+    }
+
+    *pid = -1;
 }
 
 int main(void)
@@ -155,20 +181,48 @@ int main(void)
 
         if (termine > 0)
         {
-            printf("[Superviseur] Un processus s'est termine (PID %d).\n",
-                   (int)termine);
+            const char *nom_processus = "inconnu";
 
-            if (termine == pid_p1) pid_p1 = -1;
-            if (termine == pid_p2) pid_p2 = -1;
-            if (termine == pid_p3) pid_p3 = -1;
+            if (termine == pid_p1)
+            {
+                nom_processus = "P1 - Acquisition";
+                pid_p1 = -1;
+            }
+            else if (termine == pid_p2)
+            {
+                nom_processus = "P2 - Analyse";
+                pid_p2 = -1;
+            }
+            else if (termine == pid_p3)
+            {
+                nom_processus = "P3 - Alertes";
+                pid_p3 = -1;
+            }
+
+            printf("\n[Superviseur] %s s'est termine.\n",
+                   nom_processus);
+
+            if (WIFEXITED(status))
+            {
+                printf("[Superviseur] Code de sortie : %d\n",
+                       WEXITSTATUS(status));
+            }
+            else if (WIFSIGNALED(status))
+            {
+                printf("[Superviseur] Termine par le signal : %d\n",
+                       WTERMSIG(status));
+            }
 
             printf("[Superviseur] Arret du systeme demande.\n");
             break;
         }
 
-        if (termine == -1 && errno != EINTR)
+        if (termine == -1)
         {
-            perror("Erreur waitpid");
+            if (errno == EINTR)
+                continue;
+
+            perror("[Superviseur] Erreur waitpid");
             break;
         }
 
@@ -180,13 +234,9 @@ int main(void)
 
 nettoyage:
 
-    if (pid_p1 > 0) kill(pid_p1, SIGTERM);
-    if (pid_p2 > 0) kill(pid_p2, SIGTERM);
-    if (pid_p3 > 0) kill(pid_p3, SIGTERM);
-
-    if (pid_p1 > 0) waitpid(pid_p1, NULL, 0);
-    if (pid_p2 > 0) waitpid(pid_p2, NULL, 0);
-    if (pid_p3 > 0) waitpid(pid_p3, NULL, 0);
+    arreter_processus(&pid_p1, "P1 - Acquisition");
+    arreter_processus(&pid_p2, "P2 - Analyse");
+    arreter_processus(&pid_p3, "P3 - Alertes");
 
     /* 9. Libération des ressources */
     if (notif_initialise)
