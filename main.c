@@ -183,7 +183,7 @@ nettoyage:
     if (pid_p1 > 0) kill(pid_p1, SIGTERM);
     if (pid_p2 > 0) kill(pid_p2, SIGTERM);
     if (pid_p3 > 0) kill(pid_p3, SIGTERM);
-/6
+
     if (pid_p1 > 0) waitpid(pid_p1, NULL, 0);
     if (pid_p2 > 0) waitpid(pid_p2, NULL, 0);
     if (pid_p3 > 0) waitpid(pid_p3, NULL, 0);
