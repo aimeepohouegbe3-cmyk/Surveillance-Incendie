@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Surveillance Incendie</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <h1>🔥 Surveillance Incendie</h1>
+        <p>Système de détection précoce d'incendie</p>
+    </header>
+
+    <main>
+
+        <section class="status">
+            <h2>État du système</h2>
+            <p id="system-status">Système opérationnel</p>
+        </section>
+
+        <section class="sensors">
+
+            <div class="card">
+                <h3>🌡️ Température</h3>
+                <p id="temperature">25 °C</p>
+                <span>DHT22</span>
+            </div>
+
+            <div class="card">
+                <h3>💧 Humidité</h3>
+                <p id="humidity">60 %</p>
+                <span>DHT22</span>
+            </div>
+
+            <div class="card">
+                <h3>💨 Fumée / Gaz</h3>
+                <p id="smoke">120</p>
+                <span>MQ-2</span>
+            </div>
+
+            <div class="card">
+                <h3>🔥 Flamme</h3>
+                <p id="flame">Aucune</p>
+                <span>Capteur de flamme</span>
+            </div>
+
+        </section>
+
+        <section class="alerts">
+            <h2>Alertes</h2>
+            <p id="alert-message">Aucune alerte détectée.</p>
+        </section>
+
+    </main>
+
+    <!-- Connexion avec le fichier JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
+
