@@ -2,3 +2,11 @@ venv/
 __pycache__/
 *.pyc
 .env
+
+# Fichiers de compilation
+*.o
+surveillance
+
+# Fichiers générés pendant l'exécution
+dashboard_data.json
+journal_incendie.log

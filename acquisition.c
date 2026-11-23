@@ -20,42 +20,38 @@ void acquisition_process(struct shared_data *shared,
 
     while (!(*stop))
     {
-        /* 1. Lecture des capteurs */
+        /* 1. Lecture des capteurs. */
         struct mesures m = read_simulated_sensors(scenario);
 
-        /* 2. Horodatage */
+        /* 2. Horodatage. */
         if (clock_gettime(CLOCK_MONOTONIC, &m.timestamp) == -1)
         {
             perror("Erreur clock_gettime");
-            sleep(2);
             continue;
         }
 
-        /* 3. Attente du sémaphore */
+        /* 3. Attente du sémaphore. */
         while (sem_wait(&shared->mutex) == -1)
         {
-            if (errno != EINTR)
-            {
-                perror("Erreur sem_wait");
-                return;
-            }
+            if (errno == EINTR)
+                continue;
 
-            if (*stop)
-                return;
+            perror("Erreur sem_wait");
+            return;
         }
 
-        /* 4. Publication des mesures */
+        /* 4. Publication des mesures. */
         m.sequence = ++sequence;
         shared->mesures = m;
 
-        /* 5. Libération du sémaphore */
+        /* 5. Libération du sémaphore. */
         if (sem_post(&shared->mutex) == -1)
         {
             perror("Erreur sem_post");
             return;
         }
 
-        /* 6. Affichage */
+        /* 6. Affichage. */
         printf("P1 - Mesure numero %lu\n", m.sequence);
         printf("Temperature : %.1f C\n", m.temperature);
         printf("Humidite : %.1f %%\n", m.humidity);
@@ -63,7 +59,9 @@ void acquisition_process(struct shared_data *shared,
         printf("Flamme : %d\n", m.flame_detected);
         printf("Etat des capteurs : %u\n\n", m.sensor_status);
 
-        /* Scénario suivant après trois mesures */
+        fflush(stdout);
+
+        /* Scénario suivant après trois mesures. */
         compteur_scenario++;
 
         if (compteur_scenario >= 3)
@@ -74,4 +72,7 @@ void acquisition_process(struct shared_data *shared,
 
         sleep(2);
     }
+
+    printf("[P1] Arret propre de l'acquisition.\n");
+    fflush(stdout);
 }

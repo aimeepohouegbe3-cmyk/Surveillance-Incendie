@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Surveillance Incendie</title>
 
     <link rel="stylesheet"
@@ -12,54 +13,107 @@
 
 <body>
 
+    <!-- EN-TETE -->
     <header>
         <h1>🔥 Surveillance Incendie</h1>
         <p>Système de détection précoce d'incendie</p>
+
+        <!-- CONNEXION ET DERNIERE ACTUALISATION -->
+        <div class="connection-info">
+
+            <div class="connection-indicator offline"
+                 id="connection-indicator">
+                <span class="connection-dot"></span>
+                <span id="connection-text">Connexion en attente...</span>
+            </div>
+
+            <div class="last-update">
+                Dernière actualisation :
+                <strong id="last-update">Jamais</strong>
+            </div>
+
+        </div>
     </header>
 
     <main>
 
-        <section class="status">
-            <h2>État du système</h2>
-            <p id="system-status">Système opérationnel</p>
+        <!-- ETAT DU SYSTEME ET ALERTES -->
+        <section class="dashboard-info">
+
+            <div class="status">
+                <h2>État du système</h2>
+                <p id="system-status">En attente des données...</p>
+            </div>
+
+            <div class="alerts">
+                <h2>Alertes</h2>
+                <p id="alert-message">Aucune alerte détectée.</p>
+            </div>
+
         </section>
 
+        <!-- CARTES DES CAPTEURS -->
         <section class="sensors">
 
             <div class="card">
                 <h3>🌡️ Température</h3>
-                <p id="temperature">25 °C</p>
+                <p id="temperature">--</p>
                 <span>DHT22</span>
+                <small id="temperature-status" class="sensor-status">
+                    En attente...
+                </small>
             </div>
 
             <div class="card">
                 <h3>💧 Humidité</h3>
-                <p id="humidity">60 %</p>
+                <p id="humidity">--</p>
                 <span>DHT22</span>
+                <small id="humidity-status" class="sensor-status">
+                    En attente...
+                </small>
             </div>
 
             <div class="card">
                 <h3>💨 Fumée / Gaz</h3>
-                <p id="smoke">120</p>
+                <p id="smoke">--</p>
                 <span>MQ-2</span>
+                <small id="smoke-status" class="sensor-status">
+                    En attente...
+                </small>
             </div>
 
             <div class="card">
                 <h3>🔥 Flamme</h3>
-                <p id="flame">Aucune</p>
+                <p id="flame">--</p>
                 <span>Capteur de flamme</span>
+                <small id="flame-status" class="sensor-status">
+                    En attente...
+                </small>
             </div>
 
         </section>
 
-        <section class="alerts">
-            <h2>Alertes</h2>
-            <p id="alert-message">Aucune alerte détectée.</p>
+        <!-- HISTORIQUE DES MESURES -->
+        <section class="history">
+
+            <h2>📊 Historique des mesures</h2>
+
+            <p>
+                Évolution de la température et du niveau de fumée
+            </p>
+
+            <div class="chart-container">
+                <canvas id="history-chart"></canvas>
+            </div>
+
         </section>
 
     </main>
 
-    <!-- Connexion avec le fichier JavaScript -->
+    <!-- BIBLIOTHEQUE CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SCRIPT DU TABLEAU DE BORD -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
